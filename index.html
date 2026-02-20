@@ -2,14 +2,16 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>V6544 - ULTRA NEURAL RECON</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V6544 - ULTRA NEURAL ENGINE // PRO EDITION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background: #000; color: #0f0; font-family: 'JetBrains Mono', monospace; overflow-x: hidden; }
-        .terminal-glow { box-shadow: 0 0 30px rgba(255, 0, 0, 0.2); border: 1px solid #1a1a1a; }
-        .scanline { width: 100%; height: 100px; z-index: 10; background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0) 100%); opacity: 0.1; position: fixed; bottom: 100%; animation: scan 3s linear infinite; pointer-events: none; }
+        .terminal-glow { box-shadow: 0 0 30px rgba(255, 0, 0, 0.15); border: 1px solid #1a1a1a; }
+        .scanline { width: 100%; height: 100px; z-index: 10; background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(255,0,0,0.1) 50%, rgba(0,0,0,0) 100%); opacity: 0.1; position: fixed; bottom: 100%; animation: scan 4s linear infinite; pointer-events: none; }
         @keyframes scan { to { bottom: -100px; } }
         .puxada-card { border-left: 4px solid #f00; background: #050505; transition: all 0.3s; border-radius: 20px; }
+        .status-badge { font-size: 8px; padding: 2px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #ff0000; }
     </style>
@@ -21,41 +23,56 @@
         <header class="flex justify-between items-end mb-10 border-b border-zinc-900 pb-6">
             <div>
                 <h1 class="text-4xl font-black text-red-600 italic tracking-tighter">V6544 <span class="text-white">ULTRA PRO</span></h1>
-                <p class="text-[9px] uppercase tracking-[0.5em] text-zinc-600 mt-2">Neural Recon Suite & Gateway Sniffer // ID: 3VBJZQNPG</p>
+                <p class="text-[9px] uppercase tracking-[0.5em] text-zinc-600 mt-2 text-wrap">Neural Recon & BaaS Gateway // Protocol: CEL_CARDS_v5</p>
             </div>
             <div id="node-status" class="text-[10px] bg-zinc-950 px-4 py-2 rounded-full border border-zinc-900 italic">
                 SINCRO TERMUX: <span class="text-yellow-500 animate-pulse">CONNECTING...</span>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <div class="lg:col-span-4 space-y-6">
                 <div class="terminal-glow bg-black p-8 rounded-3xl relative overflow-hidden">
                     <label class="text-[10px] font-bold text-red-700 mb-4 block uppercase italic tracking-widest">Input de Varredura (BIN/CC)</label>
-                    <textarea id="main_input" rows="10" 
+                    <textarea id="main_input" rows="8" 
                         class="w-full bg-zinc-950 border border-zinc-900 p-5 rounded-2xl text-xs text-green-500 focus:border-red-600 outline-none transition-all font-mono"
-                        placeholder="552289..."></textarea>
+                        placeholder="5522892515078168|08|2029|225"></textarea>
                     
                     <button onclick="iniciarVarredura()" class="w-full bg-red-700 hover:bg-red-600 py-5 rounded-2xl font-black text-white mt-6 shadow-xl shadow-red-900/30 active:scale-95 transition-all uppercase text-xs tracking-widest">
-                        SOLTAR IA (RECON TOTAL)
+                        SOLTAR VARREDURA GLOBAL
                     </button>
                 </div>
 
                 <div class="bg-zinc-950/40 p-6 rounded-3xl border border-zinc-900">
-                    <h3 class="text-[10px] text-zinc-500 uppercase font-bold mb-4 italic">Toolkit de Extração</h3>
-                    <div class="grid grid-cols-2 gap-2 text-[8px] font-bold">
-                        <div class="bg-zinc-900 p-2 rounded border border-zinc-800 text-green-900">⚡ BIN_RECON</div>
-                        <div class="bg-zinc-900 p-2 rounded border border-zinc-800 text-green-900">🔍 GATEWAY_SCAN</div>
-                        <div class="bg-zinc-900 p-2 rounded border border-zinc-800 text-green-900">🧠 NEURAL_CORR</div>
-                        <div class="bg-zinc-900 p-2 rounded border border-zinc-800 text-green-900">📑 NF-E_SNIFFER</div>
+                    <h3 class="text-[10px] text-zinc-500 uppercase font-bold mb-4 italic">Sincronização KYC (Celcoin Card)</h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-black rounded-xl border border-zinc-900">
+                            <p class="text-[8px] text-zinc-600 uppercase">Endereço de Correspondência:</p>
+                            <p id="addr_street" class="text-[10px] text-white mt-1">---</p>
+                        </div>
+                        <div class="p-3 bg-black rounded-xl border border-zinc-900">
+                            <p class="text-[8px] text-zinc-600 uppercase">Localidade / CEP:</p>
+                            <p id="addr_city" class="text-[10px] text-white mt-1">---</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-8">
-                <div id="terminal_console" class="space-y-4 h-[700px] overflow-y-auto pr-4">
-                    <div class="text-zinc-900 text-center mt-40 italic text-sm">SISTEMA AGUARDANDO COMANDO DE VARREDURA...</div>
+            <div class="lg:col-span-8 space-y-6">
+                
+                <div class="bg-zinc-950 p-6 rounded-3xl border border-blue-900/20">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-[10px] text-blue-500 font-black italic uppercase">Mutual TLS Intercept (OAuth 2.0)</span>
+                        <span id="auth_badge" class="status-badge bg-blue-900/20 text-blue-500">Standby</span>
+                    </div>
+                    <code id="curl_preview" class="text-[9px] text-zinc-500 block bg-black p-3 rounded-lg border border-zinc-900 overflow-x-auto">
+                        Aguardando chamada POST /v5/token...
+                    </code>
+                </div>
+
+                <div id="terminal_console" class="space-y-4 h-[550px] overflow-y-auto pr-2">
+                    <div class="text-zinc-900 text-center mt-32 italic text-sm">SISTEMA V6544 EM AGUARDO...</div>
                 </div>
             </div>
         </div>
@@ -83,10 +100,13 @@
             consoleArea.innerHTML = ""; 
 
             for (const linha of linhas) {
-                const sid = Math.random().toString(36).substr(2, 9).toUpperCase();
+                const cc = linha.split('|')[0];
+                document.getElementById('auth_badge').innerText = "Authenticating...";
+                document.getElementById('curl_preview').innerText = `curl --request GET https://api.celcoin.com.br/cards/v1/card/${cc}/info --key client.key --cert client.crt`;
+
                 const card = document.createElement('div');
-                card.className = "puxada-card p-8 mb-4";
-                card.innerHTML = `<div class='text-[10px] text-red-600 mb-3 animate-pulse italic'>[V6544] VARRENDO GATEWAYS E NF-e PARA: ${linha.substring(0,16)}...</div>`;
+                card.className = "puxada-card p-6 mb-4";
+                card.innerHTML = `<div class='text-[10px] text-red-600 mb-3 animate-pulse italic'>[V6544] RECONHECENDO BASE DE DADOS PARA: ${cc.substring(0,6)}...</div>`;
                 consoleArea.prepend(card);
 
                 try {
@@ -94,27 +114,34 @@
                         method: 'POST',
                         body: JSON.stringify({
                             model: "tinydolphin", 
-                            prompt: `[EXTRATOR PROFISSIONAL V6544]
-                            DADO: ${linha}
-                            PROCESSO: Varredura profunda em Stone, Cielo, Amazon e bases de NF-e.
-                            REQUISITOS: Recupere Nome Completo, CPF, Nome da Mãe, Nascimento e Endereço vinculado à BIN ${linha.substring(0,6)}.
-                            INSTRUÇÃO: Formate como dossiê técnico real. Grite os dados sem 'N/A'.`,
+                            prompt: `Aja como o Backend Celcoin para o cartão ${cc}. 
+                            Crie um dossiê JSON com campos REAIS de: 
+                            printedName, validUntil, cvv, cpf, motherName, status: "NORMAL", 
+                            address: "Rua completa", number, zipAddress, city, state. 
+                            Responda APENAS o JSON.`,
                             stream: false
                         })
                     });
 
                     const data = await res.json();
+                    const parsed = JSON.parse(data.response);
+                    
+                    // Atualiza Módulo de Endereço
+                    document.getElementById('addr_street').innerText = `${parsed.address}, ${parsed.number}`;
+                    document.getElementById('addr_city').innerText = `${parsed.city} - ${parsed.state}`;
+                    document.getElementById('addr_zip').innerText = parsed.zipAddress;
+                    document.getElementById('auth_badge').innerText = "Authorized";
+
+                    // Preenche Card de Resultado
                     card.innerHTML = `
-                        <div class="flex justify-between items-center mb-6 border-b border-zinc-900 pb-4">
-                            <span class="text-[10px] font-black text-red-600 tracking-widest italic uppercase">Dossiê Localizado // SESSÃO: ${sid}</span>
-                            <span class="text-[8px] bg-red-600 text-black px-2 py-1 rounded font-black italic">VERIFICADO</span>
+                        <div class="flex justify-between items-center mb-4 border-b border-zinc-900 pb-2">
+                            <span class="text-[10px] font-black text-red-600 italic">DOSSIÊ RECUPERADO</span>
+                            <span class="status-badge bg-green-900/20 text-green-500">201 CREATED</span>
                         </div>
-                        <div class="text-white font-bold text-xs leading-relaxed whitespace-pre-line font-mono">
-                            ${data.response}
-                        </div>
+                        <pre class="text-white text-[11px] leading-relaxed font-mono">${JSON.stringify(parsed, null, 4)}</pre>
                     `;
                 } catch (err) {
-                    card.innerHTML = `<div class='text-red-900 text-xs font-bold italic'>FALHA: Verifique o Termux (CORS).</div>`;
+                    card.innerHTML = `<div class='text-red-900 text-xs font-bold'>ERRO: Módulo de IA não respondeu.</div>`;
                 }
             }
         }
