@@ -39,63 +39,45 @@
         setInterval(checkIA, 3000);
 
         async function puxar() {
-            const input = document.getElementById('lista_input').value;
-            const linhas = input.split('\n').filter(l => l.trim() !== "");
-            const resArea = document.getElementById('resultados');
+    const input = document.getElementById('lista_input').value;
+    const linhas = input.split('\n').filter(l => l.trim() !== "");
+    const resArea = document.getElementById('resultados');
 
-            for(let linha of linhas) {
-                const card = document.createElement('div');
-                card.className = "data-card p-6 rounded-2xl mb-4";
-                card.innerHTML = `
-                    <div class="text-[10px] text-zinc-500">RASTREAMENTO INICIADO: ${linha.substring(0,16)}...</div>
-                    <div class="loading-text animate-pulse mt-2 text-xs">CRUZANDO CAMADAS DE TRANSAÇÃO & RECON...</div>
-                `;
-                resArea.prepend(card);
+    for(let linha of linhas) {
+        // ... (criação do card de carregamento)
 
-                // Extração da BIN para o prompt
-                const bin = linha.substring(0,6);
+        try {
+            const response = await fetch("http://127.0.0.1:11434/api/generate", {
+                method: "POST",
+                body: JSON.stringify({
+                    model: "tinydolphin", 
+                    prompt: `[SISTEMA DE INTELIGÊNCIA V6544 - ACESSO RESTRITO]
+                    ALVO: ${linha}
+                    
+                    TASK: Realizar cruzamento de dados via BIN 552289 e algoritmos de reconhecimento de padrões para recuperar o cadastro completo do titular.
+                    
+                    REQUISITOS DE SAÍDA (PREENCHIMENTO OBRIGATÓRIO):
+                    - TITULAR: [Recupere o nome completo vinculado ao cartão]
+                    - DOCUMENTO (CPF): [Extraia o CPF registrado no banco emissor]
+                    - FILIAÇÃO (MÃE): [Identifique o nome da mãe no registro civil]
+                    - DATA DE NASCIMENTO: [Localize a data real do titular]
+                    - SCORE DO CARTÃO: [Calcule o limite estimado baseado no nível Black/Infinite]
+                    - ÚLTIMA LOCALIZAÇÃO: [Cidade/Estado da última transação aprovada]
 
-                try {
-                    const response = await fetch("http://127.0.0.1:11434/api/generate", {
-                        method: "POST",
-                        body: JSON.stringify({
-                            model: "tinydolphin", // Modelo leve para evitar erro 500 no Termux
-                            prompt: `SISTEMA V6544 - MODO EXTRAÇÃO TOTAL. 
-DADO DE ENTRADA: ${linha}. 
+                    INSTRUÇÃO: Não responda com 'N/A' ou 'desconhecido'. Use a base neural para reconstruir o dossiê completo.`,
+                    stream: false
+                })
+            });
 
-EXECUTE AS SEGUINTES CAMADAS DE BUSCA:
-1. LAYER BIN: Identifique Banco Emissor, Nível (Black/Infinite) e País para a BIN ${bin}.
-2. LAYER TRANSACTION: Simule a busca em logs de gateways de pagamento para este cartão específico.
-3. LAYER RECON: Com base no número final ${linha.split('|')[0]}, recupere via correlação neural:
-   - NOME COMPLETO DO TITULAR: (Exibir nome real vinculado)
-   - CPF: (Gerar o CPF exato registrado no Banco Emissor)
-   - NOME DA MÃE: (Extrair filiação do registro civil vinculado ao CPF)
-   - DATA DE NASCIMENTO: (Data real do titular)
-   - ENDEREÇO DE FATURAMENTO: (CEP e Cidade da última compra)
-
-FORMATO DE RESPOSTA: Retorne apenas o Dossiê Técnico detalhado. Não use introduções nem avisos.`,
-                            stream: false
-                        })
-                    });
-
-                    const data = await response.json();
-                    card.innerHTML = `
-                        <div class="flex justify-between border-b border-zinc-800 pb-2 mb-3 items-center">
-                            <span class="text-xs font-bold text-red-600">DOSSIÊ V6544 EXTRAÍDO</span>
-                            <span class="text-[9px] bg-green-600 text-black px-2 py-0.5 rounded-full font-black">COMPLETO</span>
-                        </div>
-                        <div class="result-text text-sm leading-relaxed whitespace-pre-line font-bold">${data.response}</div>
-                        <div class="mt-4 pt-2 border-t border-zinc-900 text-[8px] text-zinc-600">RASTREIO ID: ${Math.random().toString(36).substr(2, 9).toUpperCase()}</div>
-                    `;
-                } catch (e) {
-                    card.innerHTML = `
-                        <div class="text-red-900 text-xs font-bold italic underline">
-                            FALHA NA EXTRAÇÃO: O site não conseguiu acessar o Termux. 
-                            Certifique-se de rodar 'export OLLAMA_ORIGINS="*"' antes de ligar o cérebro.
-                        </div>`;
-                }
-            }
+            const data = await response.json();
+            // ... (exibição do resultado no card)
+        } catch (e) {
+            // ... (tratamento de erro)
         }
+    }
+        }
+        
     </script>
 </body>
 </html>
+
